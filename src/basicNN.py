@@ -34,25 +34,32 @@ class NeuralNetwork(object):
     def calcNumHiddenUnits(self):
         return math.ceil((2.0/3.0)*(len(self.targetValues[0])+len(self.inputValues[0])))
 
-
     def initialMatrixWeights(self):
         lowInitial = -1.0 * 10.0**-4
         highInitial = 1.0 * 10.0**-4
         np.random.seed(42)
+
         self.inputHiddenWeights = np.random.uniform(low=lowInitial, high=highInitial, 
-                                    size=(len(self.inputValues[0]),self.numHiddenUnits))
+                                    size=(self.numHiddenUnits,len(self.inputValues[0]) + 1))
         self.hiddenTargetWeights = np.random.uniform(low=lowInitial, high=highInitial, 
-                                    size=(len(self.targetValues[0]),self.numHiddenUnits))
+                                    size=(len(self.targetValues[0]), self.numHiddenUnits + 1))
+
+        # set the bias weights and vals to 1
+        self.inputHiddenWeights[:, 0] = 1
+        self.hiddenTargetWeights[:, 0] = 1
+
 
     def feedForward(self):
 
-        currentInput = np.array(self.inputValues[0]).astype(np.float)
+        # add the bias unit to our input
+        inputWithBias = self.inputValues[0]
+        inputWithBias.insert(0, '1')
+
+        currentInput = np.array(inputWithBias).astype(np.float)
 
         sumOfProductsIH = np.dot(self.inputHiddenWeights,currentInput)
 
-        activationIH = self.sigmoid(sumOfProductsIH)
-
-        print self.hiddenTargetWeights
+        activationIH = np.insert(self.sigmoid(sumOfProductsIH), 0, 1)
 
         sumOfProductsHT = np.dot(self.hiddenTargetWeights,activationIH)
 
@@ -61,7 +68,7 @@ class NeuralNetwork(object):
         print activationHT
 
         # one value! :)
-        # add biases
+        # add biases is now done courtesy of J/Z dawg
 
 
     def sigmoid(self, sumOfProducts):
