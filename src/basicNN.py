@@ -32,6 +32,7 @@ class NeuralNetwork(object):
                     self.targetValues.append(target)
                     self.inputValues.append(lineParts[:-1])
 
+
     def calcNumHiddenUnits(self):
         return math.ceil((2.0/3.0)*(len(self.targetValues[0])+len(self.inputValues[0])))
 
@@ -69,15 +70,15 @@ class NeuralNetwork(object):
 
         sigma =  self.sigmoid(sumOfProductsHT)
 
-        print sigma
+        #print sigma
 
         return hiddenUnitsValues, sigma 
 
     def sigmoid(self, sumOfProducts):
         return 1.0 / (1.0 + np.exp(-1.0 * sumOfProducts))
 
-    def total_error(self, sigma):
-        return 0.5 * (1.0 - sigma)**2
+    def total_error(self, y, t):
+        return 0.5*(t-y)**2
 
     def sigmoid_error(self, y, t):
         return y*(1.0-y)*(t-y)
@@ -90,10 +91,17 @@ class NeuralNetwork(object):
 
     def backpropagation(self, index, currentInput, hiddenUnitsValues, sigma):
 
-        total_error = self.total_error(sigma)
+        currentTarget = float(self.targetValues[index][0])
+        #print "currentTarget:", currentTarget
+        #print "sigma:", sigma[0]
+        
+        total_error = self.total_error(sigma, currentTarget)
 
-        sigma_error = self.sigmoid_error(total_error[0], 
-                            float(self.targetValues[index][0]))
+        print total_error
+
+        sigma_error = self.sigmoid_error(total_error[0], currentTarget)
+
+        #print sigma_error
 
         hiddenUnits_error = self.hidden_error(hiddenUnitsValues,  
                                                 self.hiddenTargetWeights, 
@@ -103,9 +111,13 @@ class NeuralNetwork(object):
                                         self.learningRate, sigma_error, 
                                         hiddenUnitsValues)
 
+        #print self.hiddenTargetWeights
+
         self.inputHiddenWeights  =  self.updateWeights(self.inputHiddenWeights,
                                         self.learningRate, hiddenUnits_error, 
                                         currentInput)
+
+        #print self.inputHiddenWeights
 
 def main(argv):
     if len(argv) < 2:
@@ -116,24 +128,12 @@ def main(argv):
     n = NeuralNetwork(dataFile) 
     n.initialMatrixWeights()
 
-    print "original start weights:"
-    print n.inputHiddenWeights
-
-    print "\noriginal hidden weights:"
-    print n.hiddenTargetWeights
-
     for i in range(0,150):
 
         currentInput = n.addBias(n.inputValues[i])
-        print currentInput
         hiddenUnitsValues, sigma = n.feedForward(currentInput)
         n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
 
-    print "\nupdated start weights:"
-    print n.inputHiddenWeights
-
-    print "\nupdated hidden weights:"
-    print n.hiddenTargetWeights
 
 
 def usage():
