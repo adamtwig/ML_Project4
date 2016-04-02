@@ -18,6 +18,7 @@ class NeuralNetwork(object):
         self.numHiddenUnits = self.calcNumHiddenUnits()
         self.inputHiddenWeights = np.zeros([])
         self.hiddenTargetWeights = np.zeros([])
+        self.learningRate = 0.5
 
     def readFile(self):
         with open(self.dataFile) as fh:
@@ -48,47 +49,97 @@ class NeuralNetwork(object):
         self.inputHiddenWeights[:, 0] = 1
         self.hiddenTargetWeights[:, 0] = 1
 
-
-    def feedForward(self):
+    def addBias(self, currentInput):
 
         # add the bias unit to our input
-        inputWithBias = self.inputValues[0]
+        inputWithBias = currentInput
         inputWithBias.insert(0, '1')
 
         currentInput = np.array(inputWithBias).astype(np.float)
 
+        return currentInput
+
+    def feedForward(self, currentInput):
+
         sumOfProductsIH = np.dot(self.inputHiddenWeights,currentInput)
 
-        activationIH = np.insert(self.sigmoid(sumOfProductsIH), 0, 1)
+        hiddenUnitsValues = np.insert(self.sigmoid(sumOfProductsIH), 0, 1)
 
-        sumOfProductsHT = np.dot(self.hiddenTargetWeights,activationIH)
+        sumOfProductsHT = np.dot(self.hiddenTargetWeights,hiddenUnitsValues)
 
-        activationHT =  self.sigmoid(sumOfProductsHT)
+        sigma =  self.sigmoid(sumOfProductsHT)
 
-        print activationHT
+        print sigma
 
-        # one value! :)
-        # add biases is now done courtesy of J/Z dawg
-
+        return hiddenUnitsValues, sigma 
 
     def sigmoid(self, sumOfProducts):
-        #return np.exp(sumOfProducts)
         return 1.0 / (1.0 + np.exp(-1.0 * sumOfProducts))
 
+    def total_error(self, sigma):
+        return 0.5 * (1.0 - sigma)**2
+
+    def sigmoid_error(self, y, t):
+        return y*(1.0-y)*(t-y)
+
+    def hidden_error(self, h, w, E):
+        return h*(1-h)*(w*E)
+
+    def updateWeights(self, w, eta, E, z):
+        return w + eta*E*z
+
+    def backpropagation(self, index, currentInput, hiddenUnitsValues, sigma):
+
+        total_error = self.total_error(sigma)
+
+        sigma_error = self.sigmoid_error(total_error[0], 
+                            float(self.targetValues[index][0]))
+
+        hiddenUnits_error = self.hidden_error(hiddenUnitsValues,  
+                                                self.hiddenTargetWeights, 
+                                                    sigma_error)        
+
+        self.hiddenTargetWeights =  self.updateWeights(self.hiddenTargetWeights,
+                                        self.learningRate, sigma_error, 
+                                        hiddenUnitsValues)
+
+        self.inputHiddenWeights  =  self.updateWeights(self.inputHiddenWeights,
+                                        self.learningRate, hiddenUnits_error, 
+                                        currentInput)
 
 def main(argv):
     if len(argv) < 2:
         print(usage())
+        sys.exit(-1)
     else:
         dataFile = argv[1]
     n = NeuralNetwork(dataFile) 
     n.initialMatrixWeights()
-    n.feedForward()
+
+    print "original start weights:"
+    print n.inputHiddenWeights
+
+    print "\noriginal hidden weights:"
+    print n.hiddenTargetWeights
+
+    for i in range(0,150):
+
+        currentInput = n.addBias(n.inputValues[i])
+        print currentInput
+        hiddenUnitsValues, sigma = n.feedForward(currentInput)
+        n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
+
+    print "\nupdated start weights:"
+    print n.inputHiddenWeights
+
+    print "\nupdated hidden weights:"
+    print n.hiddenTargetWeights
+
 
 def usage():
     return """
             python neural_network.py [dataFile]
-                [dataFile] - the path to the file that will be used to build the net
+                [dataFile] - include data to build the net
             """
 
 if __name__ == "__main__":
