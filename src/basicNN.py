@@ -13,14 +13,15 @@ import random
 class NeuralNetwork(object):
     def __init__(self, dataFile):
         self.dataFile = dataFile
+        self.dataFileSize = 0
         self.targetValues = []
         self.inputValues = []
-        self.numTargetValues = 1
+        self.numTargetValues = 3
         self.readFile()
         self.numHiddenUnits = self.calcNumHiddenUnits()
         self.inputHiddenWeights = np.zeros([])
         self.hiddenTargetWeights = np.zeros([])
-        self.learningRate = 0.5
+        self.learningRate = 0.8
 
     def readFile(self):
         with open(self.dataFile) as fh:
@@ -33,7 +34,7 @@ class NeuralNetwork(object):
                 else:
                     self.targetValues.append(target)
                     self.inputValues.append(lineParts[:-self.numTargetValues])
-
+                self.dataFileSize += 1
 
     def calcNumHiddenUnits(self):
         return math.ceil((2.0/3.0)*(len(self.targetValues[0])+len(self.inputValues[0])))
@@ -41,28 +42,21 @@ class NeuralNetwork(object):
     def initialMatrixWeights(self):
         #lowInitial = -1.0 * 10.0**-4
         #highInitial = 1.0 * 10.0**-4
-        lowInitial = 0.0
-        highInitial = 0.0
+        lowInitial = -0.1
+        highInitial = 0.1
         np.random.seed(42)
 
-        self.inputHiddenWeights = np.array([[1.0,1.0,0.5],[1.0,-1.0,2.0]])
-        self.hiddenTargetWeights = np.array([[1.0,1.5,-1.0]])
+        #self.inputHiddenWeights = np.array([[1.0,1.0,0.5],[1.0,-1.0,2.0]])
+        #self.hiddenTargetWeights = np.array([[1.0,1.5,-1.0]])
 
-        #print self.inputHiddenWeights
-
-        #self.hiddenTargetWeights = np.array([1.0,1.5,-1.0])
-        #self.hiddenTargetWeights = np.array([1.5,-1.0])
-
-        #print self.hiddenTargetWeights
-
-        #self.inputHiddenWeights = np.random.uniform(low=lowInitial, high=highInitial, 
-        #                            size=(self.numHiddenUnits,len(self.inputValues[0]) + 1))
-        #self.hiddenTargetWeights = np.random.uniform(low=lowInitial, high=highInitial, 
-        #                            size=(len(self.targetValues[0]), self.numHiddenUnits + 1))
+        self.inputHiddenWeights = np.random.uniform(low=lowInitial, high=highInitial, 
+                                    size=(self.numHiddenUnits,len(self.inputValues[0]) + 1))
+        self.hiddenTargetWeights = np.random.uniform(low=lowInitial, high=highInitial, 
+                                    size=(len(self.targetValues[0]), self.numHiddenUnits + 1))
 
         # set the bias weights and vals to 1
-        #self.inputHiddenWeights[:, 0] = 1
-        #self.hiddenTargetWeights[:, 0] = 1
+        self.inputHiddenWeights[:, 0] = 1
+        self.hiddenTargetWeights[:, 0] = 1 
 
     def addBias(self, currentInput):
 
@@ -111,8 +105,8 @@ class NeuralNetwork(object):
 
         currentTarget = self.targetValues[index]
         currentTarget = [float(x) for x in currentTarget]
-        #print "currentTarget:", currentTarget
-        #print "sigma:", sigma
+        print "currentTarget:", currentTarget
+        print "sigma:", sigma
         
         total_error = self.total_error(sigma, currentTarget)
 
@@ -120,7 +114,7 @@ class NeuralNetwork(object):
 
         target_error = self.sigmoid_error(sigma, currentTarget)
 
-        #print sigma_error
+        print target_error
 
         hiddenUnits_error = self.hidden_error(hiddenUnitsValues,  
                                                 self.hiddenTargetWeights, 
@@ -130,10 +124,15 @@ class NeuralNetwork(object):
         self.hiddenTargetWeights =  self.updateHTweights(self.hiddenTargetWeights,
                                         self.learningRate, target_error, 
                                         hiddenUnitsValues)
+        #print self.hiddenTargetWeights
+
 
         self.inputHiddenWeights  =  self.updateIHweights(self.inputHiddenWeights,
                                     self.learningRate, hiddenUnits_error, 
                                         currentInput)
+
+        #print self.inputHiddenWeights
+
 
 def main(argv):
     if len(argv) < 2:
@@ -146,38 +145,41 @@ def main(argv):
 
     #trainingExampleIndices = random.sample(range(0, 150), 150)
 
-    for i in range(0,1):
+    '''
+    #for i in range(0,1):
     #for i in trainingExampleIndices:
         currentInput = n.addBias(['0','1'])
         #currentInput = n.addBias(n.inputValues[i])
         #currentInput = np.array(n.inputValues[i]).astype(np.float)        
         hiddenUnitsValues, sigma = n.feedForward(currentInput)
         n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
-
+    '''
     numCorrect = 0
-'''
+
     #for i in range(0,150):
-    for i in range(0,3):
-        currentInput = np.array(n.inputValues[i]).astype(np.float)        
+    for i in range(0,n.dataFileSize-1):
+    #for i in range(0,20):
+        currentInput = n.addBias(n.inputValues[i])
         hiddenUnitsValues, sigma = n.feedForward(currentInput)
-        
-        #print sigma
+        n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
+
         if n.numTargetValues == 1:
-            predicted = sigma
+            predicted = n.sigmoid(sigma)
             target = n.targetValues[i]
 
         else:
-            predicted = np.argmax(sigma)        
+            predicted = n.sigmoid(sigma)
+            predicted = np.argmax(predicted)        
             target = np.argmax(n.targetValues[i])
 
-        #print "predicted:",predicted
-        #print "target:",target
+        print "predicted:",predicted
+        print "target:",target
 
         if predicted == target:
             numCorrect +=1
 
-    print numCorrect / 4
-'''
+    print (1.0 * numCorrect) / 150.0
+    
 def usage():
     return """
             python neural_network.py [dataFile]
