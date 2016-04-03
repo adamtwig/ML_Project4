@@ -16,12 +16,13 @@ class NeuralNetwork(object):
         self.dataFileSize = 0
         self.targetValues = []
         self.inputValues = []
-        self.numTargetValues = 3
+        self.numTargetValues = 1
+        self.numEpochs = 1000
         self.readFile()
         self.numHiddenUnits = self.calcNumHiddenUnits()
         self.inputHiddenWeights = np.zeros([])
         self.hiddenTargetWeights = np.zeros([])
-        self.learningRate = 0.8
+        self.learningRate = 0.90
 
     def readFile(self):
         with open(self.dataFile) as fh:
@@ -45,9 +46,6 @@ class NeuralNetwork(object):
         lowInitial = -0.1
         highInitial = 0.1
         np.random.seed(42)
-
-        #self.inputHiddenWeights = np.array([[1.0,1.0,0.5],[1.0,-1.0,2.0]])
-        #self.hiddenTargetWeights = np.array([[1.0,1.5,-1.0]])
 
         self.inputHiddenWeights = np.random.uniform(low=lowInitial, high=highInitial, 
                                     size=(self.numHiddenUnits,len(self.inputValues[0]) + 1))
@@ -105,8 +103,8 @@ class NeuralNetwork(object):
 
         currentTarget = self.targetValues[index]
         currentTarget = [float(x) for x in currentTarget]
-        print "currentTarget:", currentTarget
-        print "sigma:", sigma
+        #print "currentTarget:", currentTarget
+        #print "sigma:", sigma
         
         total_error = self.total_error(sigma, currentTarget)
 
@@ -114,7 +112,7 @@ class NeuralNetwork(object):
 
         target_error = self.sigmoid_error(sigma, currentTarget)
 
-        print target_error
+        #print target_error
 
         hiddenUnits_error = self.hidden_error(hiddenUnitsValues,  
                                                 self.hiddenTargetWeights, 
@@ -143,25 +141,35 @@ def main(argv):
     n = NeuralNetwork(dataFile) 
     n.initialMatrixWeights()
 
-    #trainingExampleIndices = random.sample(range(0, 150), 150)
+    trainingExampleIndices = random.sample(range(0,n.dataFileSize-1),
+                                            int((9.0/10.0)*(n.dataFileSize-1)))
+    testExampleIndices = []
+    for i in range(n.dataFileSize-1):
+        if i not in trainingExampleIndices:
+            testExampleIndices.append(i)
 
-    '''
-    #for i in range(0,1):
-    #for i in trainingExampleIndices:
-        currentInput = n.addBias(['0','1'])
-        #currentInput = n.addBias(n.inputValues[i])
-        #currentInput = np.array(n.inputValues[i]).astype(np.float)        
-        hiddenUnitsValues, sigma = n.feedForward(currentInput)
-        n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
-    '''
+    #print sorted(trainingExampleIndices)
+    #print sorted(testExampleIndices)
+
     numCorrect = 0
 
-    #for i in range(0,150):
-    for i in range(0,n.dataFileSize-1):
-    #for i in range(0,20):
-        currentInput = n.addBias(n.inputValues[i])
+    for i, e in enumerate(n.inputValues):
+        n.inputValues[i] = n.addBias(e)
+
+    #for i in trainingExample
+    
+    for j in range(n.numEpochs):
+        #for i in range(150):
+        for i in trainingExampleIndices:
+            currentInput = n.inputValues[i]
+            hiddenUnitsValues, sigma = n.feedForward(currentInput)
+            n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
+
+    for i in testExampleIndices:
+        #currentInput = n.addBias(n.inputValues[i])
+        currentInput = np.array(n.inputValues[i]).astype(np.float)        
         hiddenUnitsValues, sigma = n.feedForward(currentInput)
-        n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
+        #n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
 
         if n.numTargetValues == 1:
             predicted = n.sigmoid(sigma)
@@ -172,13 +180,13 @@ def main(argv):
             predicted = np.argmax(predicted)        
             target = np.argmax(n.targetValues[i])
 
-        print "predicted:",predicted
-        print "target:",target
+        #print "predicted:",predicted
+        #print "target:",target
 
         if predicted == target:
             numCorrect +=1
 
-    print (1.0 * numCorrect) / 150.0
+    print (1.0 * numCorrect) / len(testExampleIndices)
     
 def usage():
     return """
