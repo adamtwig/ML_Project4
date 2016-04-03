@@ -39,18 +39,30 @@ class NeuralNetwork(object):
         return math.ceil((2.0/3.0)*(len(self.targetValues[0])+len(self.inputValues[0])))
 
     def initialMatrixWeights(self):
-        lowInitial = -1.0 * 10.0**-4
-        highInitial = 1.0 * 10.0**-4
+        #lowInitial = -1.0 * 10.0**-4
+        #highInitial = 1.0 * 10.0**-4
+        lowInitial = 0.0
+        highInitial = 0.0
         np.random.seed(42)
 
-        self.inputHiddenWeights = np.random.uniform(low=lowInitial, high=highInitial, 
-                                    size=(self.numHiddenUnits,len(self.inputValues[0]) + 1))
-        self.hiddenTargetWeights = np.random.uniform(low=lowInitial, high=highInitial, 
-                                    size=(len(self.targetValues[0]), self.numHiddenUnits + 1))
+        self.inputHiddenWeights = np.array([[1.0,1.0,0.5],[1.0,-1.0,2.0]])
+        self.hiddenTargetWeights = np.array([[1.0,1.5,-1.0]])
+
+        #print self.inputHiddenWeights
+
+        #self.hiddenTargetWeights = np.array([1.0,1.5,-1.0])
+        #self.hiddenTargetWeights = np.array([1.5,-1.0])
+
+        #print self.hiddenTargetWeights
+
+        #self.inputHiddenWeights = np.random.uniform(low=lowInitial, high=highInitial, 
+        #                            size=(self.numHiddenUnits,len(self.inputValues[0]) + 1))
+        #self.hiddenTargetWeights = np.random.uniform(low=lowInitial, high=highInitial, 
+        #                            size=(len(self.targetValues[0]), self.numHiddenUnits + 1))
 
         # set the bias weights and vals to 1
-        self.inputHiddenWeights[:, 0] = 1
-        self.hiddenTargetWeights[:, 0] = 1
+        #self.inputHiddenWeights[:, 0] = 1
+        #self.hiddenTargetWeights[:, 0] = 1
 
     def addBias(self, currentInput):
 
@@ -81,6 +93,7 @@ class NeuralNetwork(object):
         return 0.5*(t-y)**2
 
     def sigmoid_error(self, y, t):
+        #print("Ey = {}(1-{})({} - {})".format(y, y, t, y))
         return y*(1.0-y)*(t-y)
 
     def hidden_error(self, h, w, E):
@@ -103,28 +116,24 @@ class NeuralNetwork(object):
         
         total_error = self.total_error(sigma, currentTarget)
 
-        print total_error
+        #print total_error
 
-        sigma_error = self.sigmoid_error(total_error, currentTarget)
+        target_error = self.sigmoid_error(sigma, currentTarget)
 
         #print sigma_error
 
         hiddenUnits_error = self.hidden_error(hiddenUnitsValues,  
                                                 self.hiddenTargetWeights, 
-                                                    sigma_error)        
+                                                    target_error)        
         #print hiddenUnits_error
 
         self.hiddenTargetWeights =  self.updateHTweights(self.hiddenTargetWeights,
-                                        self.learningRate, sigma_error, 
+                                        self.learningRate, target_error, 
                                         hiddenUnitsValues)
-
-        #print self.hiddenTargetWeights
 
         self.inputHiddenWeights  =  self.updateIHweights(self.inputHiddenWeights,
                                     self.learningRate, hiddenUnits_error, 
                                         currentInput)
-
-        #print self.inputHiddenWeights
 
 def main(argv):
     if len(argv) < 2:
@@ -137,15 +146,16 @@ def main(argv):
 
     #trainingExampleIndices = random.sample(range(0, 150), 150)
 
-    for i in range(0,3):
+    for i in range(0,1):
     #for i in trainingExampleIndices:
-
-        currentInput = n.addBias(n.inputValues[i])
+        currentInput = n.addBias(['0','1'])
+        #currentInput = n.addBias(n.inputValues[i])
+        #currentInput = np.array(n.inputValues[i]).astype(np.float)        
         hiddenUnitsValues, sigma = n.feedForward(currentInput)
         n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
 
     numCorrect = 0
-
+'''
     #for i in range(0,150):
     for i in range(0,3):
         currentInput = np.array(n.inputValues[i]).astype(np.float)        
@@ -160,14 +170,14 @@ def main(argv):
             predicted = np.argmax(sigma)        
             target = np.argmax(n.targetValues[i])
 
-        print "predicted:",predicted
-        print "target:",target
+        #print "predicted:",predicted
+        #print "target:",target
 
         if predicted == target:
             numCorrect +=1
 
     print numCorrect / 4
-
+'''
 def usage():
     return """
             python neural_network.py [dataFile]
