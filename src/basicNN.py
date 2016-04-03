@@ -8,12 +8,14 @@ This program builds a neural network.
 import sys
 import math
 import numpy as np
+import random
 
 class NeuralNetwork(object):
     def __init__(self, dataFile):
         self.dataFile = dataFile
         self.targetValues = []
         self.inputValues = []
+        self.numTargetValues = 1
         self.readFile()
         self.numHiddenUnits = self.calcNumHiddenUnits()
         self.inputHiddenWeights = np.zeros([])
@@ -25,12 +27,12 @@ class NeuralNetwork(object):
             for i, line in enumerate(fh):
                 line = line.strip()
                 lineParts = line.split(',')
-                target = [lineParts[-1]]
+                target = lineParts[-self.numTargetValues:]
                 if i == 0:
-                    self.inputNames = lineParts[:-1]
+                    self.inputNames = lineParts[:-self.numTargetValues]
                 else:
                     self.targetValues.append(target)
-                    self.inputValues.append(lineParts[:-1])
+                    self.inputValues.append(lineParts[:-self.numTargetValues])
 
 
     def calcNumHiddenUnits(self):
@@ -70,8 +72,6 @@ class NeuralNetwork(object):
 
         sigma =  self.sigmoid(sumOfProductsHT)
 
-        #print sigma
-
         return hiddenUnitsValues, sigma 
 
     def sigmoid(self, sumOfProducts):
@@ -84,37 +84,44 @@ class NeuralNetwork(object):
         return y*(1.0-y)*(t-y)
 
     def hidden_error(self, h, w, E):
-        return h*(1-h)*(w*E)
+        return np.dot(E,w)*h*(1-h)
 
-    def updateWeights(self, w, eta, E, z):
-        return w + eta*E*z
+    # http://stackoverflow.com/questions/22949966/dot-product-of-two-1d-vectors-in-numpy
+    def updateHTweights(self, w, eta, E, z):
+        return w + eta*np.outer(E,z)
+
+    def updateIHweights(self, w, eta, E, z):
+        return w + eta*np.outer(E[1:],z)
+
 
     def backpropagation(self, index, currentInput, hiddenUnitsValues, sigma):
 
-        currentTarget = float(self.targetValues[index][0])
+        currentTarget = self.targetValues[index]
+        currentTarget = [float(x) for x in currentTarget]
         #print "currentTarget:", currentTarget
-        #print "sigma:", sigma[0]
+        #print "sigma:", sigma
         
         total_error = self.total_error(sigma, currentTarget)
 
         print total_error
 
-        sigma_error = self.sigmoid_error(total_error[0], currentTarget)
+        sigma_error = self.sigmoid_error(total_error, currentTarget)
 
         #print sigma_error
 
         hiddenUnits_error = self.hidden_error(hiddenUnitsValues,  
                                                 self.hiddenTargetWeights, 
                                                     sigma_error)        
+        #print hiddenUnits_error
 
-        self.hiddenTargetWeights =  self.updateWeights(self.hiddenTargetWeights,
+        self.hiddenTargetWeights =  self.updateHTweights(self.hiddenTargetWeights,
                                         self.learningRate, sigma_error, 
                                         hiddenUnitsValues)
 
         #print self.hiddenTargetWeights
 
-        self.inputHiddenWeights  =  self.updateWeights(self.inputHiddenWeights,
-                                        self.learningRate, hiddenUnits_error, 
+        self.inputHiddenWeights  =  self.updateIHweights(self.inputHiddenWeights,
+                                    self.learningRate, hiddenUnits_error, 
                                         currentInput)
 
         #print self.inputHiddenWeights
@@ -128,13 +135,38 @@ def main(argv):
     n = NeuralNetwork(dataFile) 
     n.initialMatrixWeights()
 
-    for i in range(0,150):
+    #trainingExampleIndices = random.sample(range(0, 150), 150)
+
+    for i in range(0,3):
+    #for i in trainingExampleIndices:
 
         currentInput = n.addBias(n.inputValues[i])
         hiddenUnitsValues, sigma = n.feedForward(currentInput)
         n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
 
+    numCorrect = 0
 
+    #for i in range(0,150):
+    for i in range(0,3):
+        currentInput = np.array(n.inputValues[i]).astype(np.float)        
+        hiddenUnitsValues, sigma = n.feedForward(currentInput)
+        
+        #print sigma
+        if n.numTargetValues == 1:
+            predicted = sigma
+            target = n.targetValues[i]
+
+        else:
+            predicted = np.argmax(sigma)        
+            target = np.argmax(n.targetValues[i])
+
+        print "predicted:",predicted
+        print "target:",target
+
+        if predicted == target:
+            numCorrect +=1
+
+    print numCorrect / 4
 
 def usage():
     return """
