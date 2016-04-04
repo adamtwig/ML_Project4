@@ -1,6 +1,6 @@
 """
-@authors: Michael Baldwin, Josh Engelsma, Adam Terwilliger
-@date: March 30, 2016
+@authors: Josh Engelsma, Adam Terwilliger
+@date: April 5, 2016
 @version: 1.0
 This program builds a neural network.
 """
