@@ -6,6 +6,12 @@
 ## Details: Evolving "Smarter" Game Characters using Neural Networks
 ## Credits: Grand Valley State University, Greg Wolffe
 
+### To-Do:  
+- Design doc
+- Bash script to run two-way parameter diff
+- Excel graphs to show parameter differences
+- Generate more attractive gifs for other datasets
+
 ### Completed:
 - Forward propagation
 - Backward propogation
@@ -16,10 +22,6 @@
 - Find other "big" dataset
 - Run on other "big" dataset
 - Generate graph with weights colored
-- Combine pngs into gif 
-
-### To-Do:  
-- Design doc
-- Bash script to run different parameters
-- Excel graphs to show parameter differences
-- Generate more attractive gifs for three datasets
+- Combine pngs into gif
+- Bash script to run one-way parameter diff
+- Generate more attractive gif for iris dataset
