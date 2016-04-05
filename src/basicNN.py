@@ -2,7 +2,8 @@
 @authors: Josh Engelsma, Adam Terwilliger
 @date: April 5, 2016
 @version: 1.0
-This program builds a neural network.
+This program builds a neural network, tests / trains the network, and outputs the 
+weight matrices from every epoch which are used for training viz purposes.
 """
 
 import sys
@@ -29,6 +30,9 @@ class NeuralNetwork(object):
         self.trainTestSplit = 0.75
 
     def readFile(self):
+        """
+        @summary: method reads in the training data inputs to be used for training our neural network
+        """
         with open(self.dataFile) as fh:
             for i, line in enumerate(fh):
                 line = line.strip()
@@ -42,11 +46,17 @@ class NeuralNetwork(object):
                 self.dataFileSize += 1
 
     def calcNumHiddenUnits(self):
+        """
+        @summary: method returns 2/3 the number of inputs plus outputs - the number of hidden values 
+                  in out network
+        """
         return math.ceil((2.0/3.0)*(len(self.targetValues[0])+len(self.inputValues[0])))
 
     def initialMatrixWeights(self):
-        #lowInitial = -1.0 * 10.0**-4
-        #highInitial = 1.0 * 10.0**-4
+        """
+        @summary: method initializes our weights from the input to hidden layer and the 
+                  hidden to output layer with random values.
+        """
         lowInitial = -0.1
         highInitial = 0.1
         np.random.seed(42)
@@ -61,7 +71,10 @@ class NeuralNetwork(object):
         self.hiddenTargetWeights[:, 0] = 1 
 
     def addBias(self, currentInput):
-
+        """
+        @param currentInput: The input vector for this training example
+        @summary: method adds bias value of 1 to our input vector
+        """
         # add the bias unit to our input
         inputWithBias = currentInput
         inputWithBias.insert(0, '1')
@@ -71,7 +84,10 @@ class NeuralNetwork(object):
         return currentInput
 
     def feedForward(self, currentInput):
-
+        """
+        @param currentInput: The input vector
+        @summary: Methods feeds our input through the currently weighted neural network
+        """
         sumOfProductsIH = np.dot(self.inputHiddenWeights,currentInput)
 
         hiddenUnitsValues = np.insert(self.sigmoid(sumOfProductsIH), 0, 1)
@@ -83,61 +99,95 @@ class NeuralNetwork(object):
         return hiddenUnitsValues, sigma 
 
     def sigmoid(self, sumOfProducts):
+        """
+        @param sumOfProducts: the results of moving through one layer in the network 
+        @summary: method runs the sigmoid function on sigma
+        """
         return 1.0 / (1.0 + np.exp(-1.0 * sumOfProducts))
 
     def total_error(self, y, t):
+        """
+        @param y: sigma
+        @param t: the current target value 
+        @summary: method returns the total error for the given sigma given the current target value
+        """
         return 0.5*(t-y)**2
 
     def sigmoid_error(self, y, t):
-        #print("Ey = {}(1-{})({} - {})".format(y, y, t, y))
+        """
+        @param y: sigma
+        @param t: the current target value
+        @summary: method returns the target error by using the derivative
+        """
         return y*(1.0-y)*(t-y)
 
     def hidden_error(self, h, w, E):
+        """
+        @param h: The vector of current hidden Units values
+        @param w: the hidden to target weights matrix
+        @param E: The target Error
+        @summary: method returns the error for respective hidden nodes
+        """
         return np.dot(E,w)*h*(1-h)
 
-    # http://stackoverflow.com/questions/22949966/dot-product-of-two-1d-vectors-in-numpy
     def updateHTweights(self, w, eta, E, z):
+        """
+        @param w: the hidden to target weights matrix
+        @param eta: our learning rate.
+        @param E: The target units error
+        @param z: The hidden units values
+        @ref: # http://stackoverflow.com/questions/22949966/dot-product-of-two-1d-vectors-in-numpy
+        @summary: method updates the hidden to target weights
+        """
         return w + eta*np.outer(E,z)
 
     def updateIHweights(self, w, eta, E, z):
+        """
+        @param w: the input to hidden layer weights
+        @param eta: the learning rate 
+        @param E: the hidden units error
+        @param z: The current input vector values
+        @summary: method updates the weights of the input to hidden layer nodes
+        """
         return w + eta*np.outer(E[1:],z)
 
 
     def backpropagation(self, index, currentInput, hiddenUnitsValues, sigma):
+        """
+        @param index: the index of the training example we are currently using.
+        @param currentInput: the current input vector values
+        @param hiddenUnitsValues: the values that we summed up by forward prop at hidden layer.
+        @param sigma: value of sigma that was calculated during forward prop.
+        @summary: method backpropogates our errors and updates our weights accordingly.
+        """
 
         currentTarget = self.targetValues[index]
         currentTarget = [float(x) for x in currentTarget]
-        #print "currentTarget:", currentTarget
-        #print "sigma:", sigma
         
         total_error = self.total_error(sigma, currentTarget)
 
-        #print total_error
-
         target_error = self.sigmoid_error(sigma, currentTarget)
-
-        #print target_error
 
         hiddenUnits_error = self.hidden_error(hiddenUnitsValues,  
                                                 self.hiddenTargetWeights, 
                                                     target_error)        
-        #print hiddenUnits_error
 
         self.hiddenTargetWeights =  self.updateHTweights(self.hiddenTargetWeights,
                                         self.learningRate, target_error, 
                                         hiddenUnitsValues)
-        #print self.hiddenTargetWeights
 
 
         self.inputHiddenWeights  =  self.updateIHweights(self.inputHiddenWeights,
                                     self.learningRate, hiddenUnits_error, 
                                         currentInput)
 
-        #print self.inputHiddenWeights
-
     def trainAndTestNetwork(self):
+        """
+        @summary: method runs through a specified percentage of our training data, and
+                  a specified number of epochs to build the neural network. Then the remaining 
+                  data is used for testing purposes.
+        """
         # separate our testing and training data...
-        
         trainingExampleIndices = random.sample(range(0, self.dataFileSize-1),
                                                 int((self.trainTestSplit)*(self.dataFileSize-1)))
         testExampleIndices = []
@@ -160,25 +210,17 @@ class NeuralNetwork(object):
         # test our data
         numCorrect = 0
         for i in testExampleIndices:
-            #currentInput = n.addBias(n.inputValues[i])
             currentInput = np.array(self.inputValues[i]).astype(np.float)        
             hiddenUnitsValues, sigma = self.feedForward(currentInput)
-            #n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
 
             if self.numTargetValues == 1:
-                #predicted = self.sigmoid(sigma)
                 predicted = int(round(sigma))
                 target = int(self.targetValues[i][0])
-                #print "predicted:",predicted
-                #print "target:",target
 
             else:
                 predicted = self.sigmoid(sigma)
                 predicted = np.argmax(predicted)        
                 target = np.argmax(self.targetValues[i])
-
-                #print "predicted:",predicted
-                #print "target:",target
 
             if predicted == target:
                 numCorrect +=1
@@ -189,12 +231,21 @@ class NeuralNetwork(object):
                  "Train/Test Split:", self.trainTestSplit)
 
     def getInputHiddenWeightsAsList(self):
+        """
+        @summary: method returns the input to hidden layer weights as a python list.
+        """
         return self.inputHiddenWeights.tolist()
 
     def getHiddenTargetWeightsAsList(self):
+        """
+        @summary: method returns the hidden to target layer weights as python list.
+        """
         return self.hiddenTargetWeights.tolist()
 
     def updateFlattenedWeights(self):
+        """
+        @summary: method flattens out weight matrices into a string to be used by our viz.
+        """
         lFlattenedWeights = ""
         for x in np.nditer(self.inputHiddenWeights):
             lFlattenedWeights += "{},".format(str(x))
@@ -203,6 +254,10 @@ class NeuralNetwork(object):
         self.flattenedWeights += lFlattenedWeights + "\n"
 
     def writeWeightsToFile(self, fileName):
+        """
+        @param fileName: name of file you wish to output flattened weights to.
+        @summary: method writes out our flattened weights from every epoch to a file.
+        """
         with open(fileName, "w") as fh:
             fh.write(self.flattenedWeights)
 
@@ -223,21 +278,6 @@ def main(argv):
 
     n.initialMatrixWeights()
     n.trainAndTestNetwork()
-
-    #n.outputFileName = n.outputFileName + "_" + str(n.numEpochs) + ".csv"
-    #n.writeWeightsToFile(n.outputFileName)
-
-    #for x in np.nditer(n.hiddenTargetWeights):
-    #    print x
-
-    #print n.hiddenTargetWeights.tolist()
-
-    #for i in range(n.inputHiddenWeights.size):
-    #    print n.inputHiddenWeights[i]
-    #for i in range(n.hiddenTargetWeights.size):
-    #    print n.hiddenTargetWeights[i]
-
-
     
 def usage():
     return """
