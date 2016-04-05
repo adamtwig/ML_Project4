@@ -9,15 +9,18 @@ import sys
 import math
 import numpy as np
 import random
+import os
 
 class NeuralNetwork(object):
     def __init__(self, dataFile, numTargetValues=3):
         self.dataFile = dataFile
+        self.outputFileName = "../output/weights_outputs"
+        self.flattenedWeights =  ""
         self.dataFileSize = 0
         self.targetValues = []
         self.inputValues = []
         self.numTargetValues = numTargetValues
-        self.numEpochs = 1000
+        self.numEpochs = 100
         self.readFile()
         self.numHiddenUnits = self.calcNumHiddenUnits()
         self.inputHiddenWeights = np.zeros([])
@@ -148,12 +151,11 @@ class NeuralNetwork(object):
 
         # train our network with training examples over multiple epochs
         for j in range(self.numEpochs):
+            self.updateFlattenedWeights()
             for i in trainingExampleIndices:
                 currentInput = self.inputValues[i]
                 hiddenUnitsValues, sigma = self.feedForward(currentInput)
                 self.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
-
-        
 
         # test our data
         numCorrect = 0
@@ -167,16 +169,16 @@ class NeuralNetwork(object):
                 #predicted = self.sigmoid(sigma)
                 predicted = int(round(sigma))
                 target = int(self.targetValues[i][0])
-                print "predicted:",predicted
-                print "target:",target
+                #print "predicted:",predicted
+                #print "target:",target
 
             else:
                 predicted = self.sigmoid(sigma)
                 predicted = np.argmax(predicted)        
                 target = np.argmax(self.targetValues[i])
 
-                print "predicted:",predicted
-                print "target:",target
+                #print "predicted:",predicted
+                #print "target:",target
 
             if predicted == target:
                 numCorrect +=1
@@ -189,6 +191,17 @@ class NeuralNetwork(object):
     def getHiddenTargetWeightsAsList(self):
         return self.hiddenTargetWeights.tolist()
 
+    def updateFlattenedWeights(self):
+        lFlattenedWeights = ""
+        for x in np.nditer(self.inputHiddenWeights):
+            lFlattenedWeights += "{},".format(str(x))
+        for x in np.nditer(self.hiddenTargetWeights):
+            lFlattenedWeights += "{},".format(str(x))
+        self.flattenedWeights += lFlattenedWeights + "\n"
+
+    def writeWeightsToFile(self, fileName):
+        with open(fileName, "w") as fh:
+            fh.write(self.flattenedWeights)
 
 def main(argv):
     if len(argv) < 2:
@@ -208,13 +221,13 @@ def main(argv):
     n.initialMatrixWeights()
     n.trainAndTestNetwork()
 
-    for x in np.nditer(n.inputHiddenWeights):
-        print x
+    n.outputFileName = n.outputFileName + "_" + str(n.numEpochs) + ".csv"
+    n.writeWeightsToFile(n.outputFileName)
 
-    for x in np.nditer(n.hiddenTargetWeights):
-        print x
+    #for x in np.nditer(n.hiddenTargetWeights):
+    #    print x
 
-    print n.hiddenTargetWeights.tolist()
+    #print n.hiddenTargetWeights.tolist()
 
     #for i in range(n.inputHiddenWeights.size):
     #    print n.inputHiddenWeights[i]
