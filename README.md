@@ -6,11 +6,6 @@
 ## Details: Exploring Properties of Neural Networks (learning rate, number of epochs, train/test split)
 ## Credits: Grand Valley State University, Greg Wolffe
 
-### To-Do:  
-- Design doc
-- Excel graphs to show parameter differences
-- Generate more attractive gifs for other datasets
-
 ### Completed:
 - Forward propagation
 - Backward propogation
@@ -25,3 +20,5 @@
 - Bash script to run one-way parameter diff
 - Generate more attractive gif for iris dataset
 - Bash script to run two-way parameter diff
+- Design doc
+- Excel graphs to show parameter differences
