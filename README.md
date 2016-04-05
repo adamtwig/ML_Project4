@@ -13,16 +13,13 @@
 - Make code modular to pass parameters in command line (num_epochs, learning_rate, training/test)
 - Clean up other two datasets
 - Run on other two datasets
-
-### To-Do:  
-  
-#### Adam  
-- Bash script to run different parameters
-- Excel graphs to show parameter differences
 - Find other "big" dataset
 - Run on other "big" dataset
-   
-#### Josh  
 - Generate graph with weights colored
-- Output many pngs of state of graph after epochs
 - Combine pngs into gif 
+
+### To-Do:  
+- Design doc
+- Bash script to run different parameters
+- Excel graphs to show parameter differences
+- Generate more attractive gifs for three datasets
