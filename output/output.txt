@@ -1,0 +1,1 @@
+('Dataset:', '../data/normalizedWineData.csv', 'Num Correct:', 69, 'Num Test:', 72, 'Num Epochs:', 250, 'Learning Rate:', 0.05, 'Train/Test Split:', 0.6)

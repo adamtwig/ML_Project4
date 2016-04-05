@@ -183,7 +183,10 @@ class NeuralNetwork(object):
             if predicted == target:
                 numCorrect +=1
 
-        print (1.0 * numCorrect) / len(testExampleIndices)
+        print ("Dataset:", self.dataFile, "Num Correct:", numCorrect,
+                "Num Test:", len(testExampleIndices), "Num Epochs:", self.numEpochs,
+                 "Learning Rate:", self.learningRate,
+                 "Train/Test Split:", self.trainTestSplit)
 
     def getInputHiddenWeightsAsList(self):
         return self.inputHiddenWeights.tolist()
@@ -221,8 +224,8 @@ def main(argv):
     n.initialMatrixWeights()
     n.trainAndTestNetwork()
 
-    n.outputFileName = n.outputFileName + "_" + str(n.numEpochs) + ".csv"
-    n.writeWeightsToFile(n.outputFileName)
+    #n.outputFileName = n.outputFileName + "_" + str(n.numEpochs) + ".csv"
+    #n.writeWeightsToFile(n.outputFileName)
 
     #for x in np.nditer(n.hiddenTargetWeights):
     #    print x

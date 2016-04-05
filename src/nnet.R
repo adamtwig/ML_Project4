@@ -1,9 +1,9 @@
 
-install.packages('scales')
+#install.packages('scales')
 library(scales)
-install.packages('reshape')
+#install.packages('reshape')
 library(reshape)
-install.packages('clusterGeneration')
+#install.packages('clusterGeneration')
 library(clusterGeneration)
 
 seed.val<-2
@@ -28,27 +28,27 @@ resp<-data.frame(y1,y2)
 names(resp)<-c('Y1','Y2')
 dat.in<-data.frame(resp,rand.vars)
 
-install.packages('nnet')
+#install.packages('nnet')
 library(nnet)
 set.seed(seed.val)
 mod1<-nnet(rand.vars,resp,data=dat.in,size=10,linout=T)
 
 #neuralnet function from neuralnet package, notice use of only one response
-install.packages('neuralnet')
+#install.packages('neuralnet')
 library(neuralnet)
 form.in<-as.formula('Y1~X1+X2+X3+X4+X5+X6+X7+X8')
 set.seed(seed.val)
 mod2<-neuralnet(form.in,data=dat.in,hidden=10)
 
 #mlp function from RSNNS package
-install.packages('RSNNS')
+#install.packages('RSNNS')
 library(RSNNS)
 set.seed(seed.val)
 mod3<-mlp(rand.vars, resp, size=10,linOut=T)
 
 
 #import the function from Github
-install.packages('devtools')
+#install.packages('devtools')
 library(devtools)
 source_url('https://gist.githubusercontent.com/fawda123/7471137/raw/466c1474d0a505ff044412703516c34f1a4684a5/nnet_plot_update.r')
 
@@ -454,6 +454,22 @@ mod.in<-c(13.12,1.49,0.16,-0.11,-0.19,-0.16,0.56,-0.52,0.81)
 struct<-c(2,2,1) #two inputs, two hidden, one output 
 plot.nnet(mod.in,struct=struct)
 
+
+#example data and code from nnet function examples
+ir<-rbind(iris3[,,1],iris3[,,2],iris3[,,3])
+targets<-class.ind( c(rep("s", 50), rep("c", 50), rep("v", 50)) )
+samp<-c(sample(1:50,25), sample(51:100,25), sample(101:150,25))
+ir1<-nnet(ir[samp,], targets[samp,], size = 2, rang = 0.1,decay = 5e-4, maxit = 200)
+
+#plot the model with different default values for the arguments
+par(mar=numeric(4),family='serif')
+plot.nnet(ir1,pos.col='darkgreen',neg.col='darkblue',alpha.val=0.7,rel.rsc=15,
+          circle.cex=10,cex=1.4,
+          circle.col='brown')
+
+
+
+
 setwd('/Users/adamterwilliger/github/ML_Project4/output')
 #weights <- read.csv('../output/weights_outputs.csv')
 
@@ -476,16 +492,33 @@ struct <- c(4,5,3)
 #dir.create("examples")
 #setwd("")
 
-install.packages("animation")
+#install.packages("animation")
 library(animation)
-
 struct <- c(4,5,3)
+#i=5
+#par("mar")
 # example 1: simple animated countdown from 10 to "GO!".
 png(file="example%02d.png", width=1000, height=1000)
-for (i in seq(from=1, to=25, by=1)) {
-  nn_plot <- plot.nnet(as.numeric(weights2[i,]),struct=struct)
-}
+for (i in seq(from=1, to=10, by=1)) {
+  #par(mfrow=c(1,1))
+  #plot.new()
+  #par(mar = rep(1, 1))
+  #par(fig=c(0,0.99,0,0.99), new=TRUE)
+  #par(mar=c(1,1,1,1))
+  nn_plot <- plot.nnet(as.numeric(weights2[i,]),struct=struct,
+                       pos.col='darkred',neg.col='darkblue',
+                       alpha.val=0.8,rel.rsc=25,
+                       circle.cex=10,cex=1.5,
+                       circle.col='darkgreen', line.stag = 0.03,
+                       x.lab = c("Sepal L.", "Sepal W.", "Petal L.", "Petal W."),
+                       y.lab = c("Set", "Ver", "Vir"))
+  #par(fig=c(0.1,0.2,0.925,0.95), new=TRUE)
+  #text(.5, .5, i, cex = 3)
 
+  }
+
+
+dev.off()
 
 #mod.in<-c(1,2,3,4,5,6,7,8,9,-1,-2,-3,-4,-5,-6,-7,-8,-9)
 #mod.in<-c(1,-2,3,-4,5,-6,7,-8,9)
@@ -504,7 +537,7 @@ for (i in seq(from=1, to=25, by=1)) {
 # The system() function executes the command as if it was done
 # in the terminal. the -delay flag sets the time between showing
 # the frames, i.e. the speed of the animation.
-system("convert -delay 500 *.png iris_train100.gif")
+system("convert -delay 200 *.png iris_train10.gif")
 
 # to not leave the directory with the single jpeg files
 # I remove them.
