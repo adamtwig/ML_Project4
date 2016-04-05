@@ -153,12 +153,7 @@ class NeuralNetwork(object):
                 hiddenUnitsValues, sigma = self.feedForward(currentInput)
                 self.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
 
-        print trainingExampleIndices
-        print testExampleIndices
-
-        #traindata = trainingExampleIndices
-        #trainingExampleIndices = trainingExampleIndices[-3:]
-        #testExampleIndices = trainingExampleIndices
+        
 
         # test our data
         numCorrect = 0
@@ -188,6 +183,11 @@ class NeuralNetwork(object):
 
         print (1.0 * numCorrect) / len(testExampleIndices)
 
+    def getInputHiddenWeightsAsList(self):
+        return self.inputHiddenWeights.tolist()
+
+    def getHiddenTargetWeightsAsList(self):
+        return self.hiddenTargetWeights.tolist()
 
 
 def main(argv):
@@ -207,6 +207,21 @@ def main(argv):
 
     n.initialMatrixWeights()
     n.trainAndTestNetwork()
+
+    for x in np.nditer(n.inputHiddenWeights):
+        print x
+
+    for x in np.nditer(n.hiddenTargetWeights):
+        print x
+
+    print n.hiddenTargetWeights.tolist()
+
+    #for i in range(n.inputHiddenWeights.size):
+    #    print n.inputHiddenWeights[i]
+    #for i in range(n.hiddenTargetWeights.size):
+    #    print n.hiddenTargetWeights[i]
+
+
     
 def usage():
     return """
