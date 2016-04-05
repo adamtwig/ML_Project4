@@ -3,12 +3,11 @@
 ## Developers: Adam Terwilliger, Josh Engelsma
 ## Version: 1.0
 ## Purpose: CIS 678 - Machine Learning Project 4
-## Details: Evolving "Smarter" Game Characters using Neural Networks
+## Details: Exploring Properties of Neural Networks (learning rate, number of epochs, train/test split)
 ## Credits: Grand Valley State University, Greg Wolffe
 
 ### To-Do:  
 - Design doc
-- Bash script to run two-way parameter diff
 - Excel graphs to show parameter differences
 - Generate more attractive gifs for other datasets
 
@@ -25,3 +24,4 @@
 - Combine pngs into gif
 - Bash script to run one-way parameter diff
 - Generate more attractive gif for iris dataset
+- Bash script to run two-way parameter diff
