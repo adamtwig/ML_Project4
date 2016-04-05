@@ -1,0 +1,79 @@
+Machine Learning Notes -- March 22, 2016
+
+Training
+--------
+Idea: Use gradient descent to "tune" parameters to fit training set --> supervised learning
+
+	  -- Iteratively update synaptic weights until correct output
+	  -- Initialize with random weights
+	  -- Repeat
+	  		-- compute output y given inputs
+	  		-- compute error (compare y to target t)
+	  		-- update weights using learning rule
+	  -- Epoch: One iteration through training examples
+	  -- Error (E) : Mean squared error
+	  		-- E = (1/n) * sum (t_d - y_d)^2 over all d
+	  -- Learning (Delta) Rule : w_ij = w_ij + delta_ij = w_ij + eta(t_j - y_j) * x_i
+	  	 UpdateVal = LearnRate (Target - Output)*Input
+	  	 eta(LearnRate) : Rate of Convergence, decreased over time (O <= eta <= 1)
+
+
+Rule: If output correct --> do nothing
+		 output high --> lower weights on active inputs
+		 output low --> increase weights on active inputs
+
+If linearly seperable --> converge
+
+Multi-Layer Feed-Forward Network
+--------------------------------
+Problem: What is the target value for hidden layer perceptron?
+
+Idea: Use backpropagated error from output unit?
+
+Stochastic Gradient Descent
+Y = Error X = w_0 Z = w_1
+
+Gradient
+--------
+Photo 1
+Photo 2
+
+-- in-class activity --
+
+Parameters
+----------
+Inputs: Normalize
+Weights: Small random values (-0.1...0.1)
+eta: small(<0.5), gradually decrease
+
+Multiple Classes
+----------------
+K class --> K output perceptrons
+	Softmax function
+
+Termination
+-----------
+Fixed: # epoch, time interval
+Adaptable: Acceptable error (E < epislon)
+		   Consecutive epochs with no change in E
+
+Avoid local minima
+------------------
+Random restart (multiple trials)
+
+Momentum
+--------
+Way to avoid local optima
+Equation: Photo 3
+
+Adaptive Learning Rate
+----------------------
+eta (as seen previously)
+
+Overfitting
+-----------
+ - weights tuned to noise
+ - accuracy vs. generalization
+
+ - solution
+   validation set: Photo 4

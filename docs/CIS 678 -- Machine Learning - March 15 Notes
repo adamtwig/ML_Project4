@@ -1,0 +1,50 @@
+CIS 678 -- Machine Learning - March 15 Notes
+
+Neural Networks (Multi-layer Perceptron)
+
+Definition: Network of interconnected processing units evolve over time
+
+Model: Inspired by biology (human brain) 
+		Brain 1-4 ms (neurons not very fast)
+		Massively parallel (10^11 neurons, connectivity > 10^4)
+
+Idea: Intelligent behavior emerge large number of simple units
+
+Neuron
+- fires if excitory action potential > threshold
+- neurons that fire together, wire together
+
+	size and strength of shared synapses changes over time
+
+Neuron --> Perceptron
+------
+Perceptron fires sum of products > threshold
+ex. threshold = 0 if SOP > 0 --> fire 1
+
+One-Input
+---------
+x_b = 1 ---- bias ----> (sigma)
+x ----- w -----> (sigma)
+sigma = wx + b
+y = { 1 if sigma > 0; 0 otherwise}
+
+
+Multiple-Input
+--------------
+x_b = 1 ---- bias ----> (sigma)
+x1 ----- w1 -----> (sigma)
+x2 ----- w2 -----> (sigma)
+...
+xd ----- wd -----> (sigma)
+sigma = sum of (w_i*x_i + b) from i=1 to d
+
+y = sigmoid (sigma) = 1 / (1 + e^-(sigma)
+y = { 1 if sigmoid(sigma) > 0 ; 0 otherwise}
+
+
+K-Class
+-------
+Output: Choose class c_i if y_i is Max(y)
+Softmax(): Differentiable version of max
+			= y_i = e^(sigma_i) / sum 
+
