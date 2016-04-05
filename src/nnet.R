@@ -499,8 +499,8 @@ struct <- c(4,5,3)
 #par("mar")
 # example 1: simple animated countdown from 10 to "GO!".
 png(file="example%02d.png", width=1000, height=1000)
-for (i in seq(from=1, to=10, by=1)) {
-  #par(mfrow=c(1,1))
+for (i in seq(from=1, to=15, by=1)) {
+  par(mfrow=c(1,1))
   #plot.new()
   #par(mar = rep(1, 1))
   #par(fig=c(0,0.99,0,0.99), new=TRUE)
@@ -510,10 +510,11 @@ for (i in seq(from=1, to=10, by=1)) {
                        alpha.val=0.8,rel.rsc=25,
                        circle.cex=10,cex=1.5,
                        circle.col='darkgreen', line.stag = 0.03,
-                       x.lab = c("Sepal L.", "Sepal W.", "Petal L.", "Petal W."),
-                       y.lab = c("Set", "Ver", "Vir"))
-  #par(fig=c(0.1,0.2,0.925,0.95), new=TRUE)
-  #text(.5, .5, i, cex = 3)
+                       x.lab = c("Sepal Length", "Sepal Width", "Petal Length", "Petal Width"),
+                       y.lab = c("Setosa", "Versicolor", "Virginica"))
+  #par(fig=c(0.1,0.2,0.75,0.8))
+  par(new=T)
+  text(15, 95, paste("Epoch:", i), cex = 2)
 
   }
 
@@ -537,7 +538,7 @@ dev.off()
 # The system() function executes the command as if it was done
 # in the terminal. the -delay flag sets the time between showing
 # the frames, i.e. the speed of the animation.
-system("convert -delay 200 *.png iris_train10.gif")
+system("convert -delay 200 *.png iris_train15.gif")
 
 # to not leave the directory with the single jpeg files
 # I remove them.
