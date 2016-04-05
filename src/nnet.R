@@ -499,7 +499,7 @@ struct <- c(4,5,3)
 #par("mar")
 # example 1: simple animated countdown from 10 to "GO!".
 png(file="example%02d.png", width=1000, height=1000)
-for (i in seq(from=1, to=15, by=1)) {
+for (i in seq(from=1, to=100, by=1)) {
   par(mfrow=c(1,1))
   #plot.new()
   #par(mar = rep(1, 1))
@@ -538,8 +538,8 @@ dev.off()
 # The system() function executes the command as if it was done
 # in the terminal. the -delay flag sets the time between showing
 # the frames, i.e. the speed of the animation.
-system("convert -delay 200 *.png iris_train15.gif")
+system("convert -delay 10 *.png iris_train100.gif")
 
 # to not leave the directory with the single jpeg files
 # I remove them.
-file.remove(list.files(pattern=".png"))
+#file.remove(list.files(pattern=".png"))
