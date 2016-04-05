@@ -187,52 +187,6 @@ def main(argv):
     n = NeuralNetwork(dataFile) 
     n.initialMatrixWeights()
     n.trainAndTestNetwork()
-
-    """
-    trainingExampleIndices = random.sample(range(0,n.dataFileSize-1),
-                                            int((9.0/10.0)*(n.dataFileSize-1)))
-    testExampleIndices = []
-    for i in range(n.dataFileSize-1):
-        if i not in trainingExampleIndices:
-            testExampleIndices.append(i)
-
-    numCorrect = 0
-
-    for i, e in enumerate(n.inputValues):
-        n.inputValues[i] = n.addBias(e)
-
-    #for i in trainingExample
-    
-    for j in range(n.numEpochs):
-        #for i in range(150):
-        for i in trainingExampleIndices:
-            currentInput = n.inputValues[i]
-            hiddenUnitsValues, sigma = n.feedForward(currentInput)
-            n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
-
-    for i in testExampleIndices:
-        #currentInput = n.addBias(n.inputValues[i])
-        currentInput = np.array(n.inputValues[i]).astype(np.float)        
-        hiddenUnitsValues, sigma = n.feedForward(currentInput)
-        #n.backpropagation(i, currentInput, hiddenUnitsValues, sigma)
-
-        if n.numTargetValues == 1:
-            predicted = n.sigmoid(sigma)
-            target = n.targetValues[i]
-
-        else:
-            predicted = n.sigmoid(sigma)
-            predicted = np.argmax(predicted)        
-            target = np.argmax(n.targetValues[i])
-
-        #print "predicted:",predicted
-        #print "target:",target
-
-        if predicted == target:
-            numCorrect +=1
-
-    print (1.0 * numCorrect) / len(testExampleIndices)
-    """
     
 def usage():
     return """
